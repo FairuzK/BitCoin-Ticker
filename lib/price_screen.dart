@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'coin_data.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
   const PriceScreen({super.key});
@@ -11,7 +13,7 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String SelectedValue = 'USD';
-  List<DropdownMenuItem<String>> getdropdownItems() {
+  DropdownButton<String> AndroidDropDown() {
     List<DropdownMenuItem<String>> dropdownitems = [];
     for (String currency in currenciesList) {
       var newItem = DropdownMenuItem(
@@ -20,7 +22,38 @@ class _PriceScreenState extends State<PriceScreen> {
       );
       dropdownitems.add(newItem);
     }
-    return dropdownitems;
+    return DropdownButton<String>(
+      value: SelectedValue,
+      items: dropdownitems,
+      onChanged: (value) {
+        setState(() {
+          SelectedValue = value!;
+        });
+      },
+    );
+  }
+
+  CupertinoPicker IOSPicker() {
+    List<Text> pickerItems = [];
+    for (String currency in currenciesList) {
+      pickerItems.add(Text(currency));
+    }
+    return CupertinoPicker(
+      itemExtent: 32.0,
+      onSelectedItemChanged: (selectedIndex) {
+        print(selectedIndex);
+      },
+      children: pickerItems,
+    );
+  }
+
+  // ignore: body_might_complete_normally_nullable
+  Widget? deviceChecker() {
+    if (Platform.isAndroid) {
+      return AndroidDropDown();
+    } else if(Platform.isIOS) {
+      return IOSPicker();
+    }
   }
 
   @override
@@ -56,32 +89,14 @@ class _PriceScreenState extends State<PriceScreen> {
             ),
           ),
           Container(
-              height: 150.0,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.only(bottom: 30.0),
-              color: Colors.lightBlue,
-              child: CupertinoPicker(
-                  itemExtent: 32.0,
-                  onSelectedItemChanged: (selectedIndex) {
-                    print(selectedIndex);
-                  },
-                  children: [
-                    Text('USD'),
-                    Text('EUR'),
-                    Text('GDP'),
-                  ])),
+            height: 150.0,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.only(bottom: 30.0),
+            color: Colors.lightBlue,
+            child: deviceChecker(),
+          ),
         ],
       ),
     );
   }
 }
-
-// DropdownButton<String>(
-//               value: SelectedValue,
-//               items: getdropdownItems(),
-//               onChanged: (value) {
-//                 setState(() {
-//                   SelectedValue = value!;
-//                 });
-//               },
-//             ),
